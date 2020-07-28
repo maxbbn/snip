@@ -12,19 +12,19 @@ async function main() {
   await clientB.connect()
 
   const dbA = clientA.db('mydbname')
-  const dbB = clientH.db('mydbname')
+  const dbB = clientB.db('mydbname')
 
   const collectionsA = await dbA.listCollections().toArray()
   console.log('A', collectionsA)
   const collectionsB = await dbB.listCollections().toArray()
-  console.log('B', collectionsH)
+  console.log('B', collectionsB)
 
   const collections = collectionsA
   const counts = {}
   for (const c of collections) {
     console.log('collection', c)
     const collectionA = dbA.collection(c)
-    const collectionH = dbH.collection(c)
+    const collectionsB = dbB.collection(c)
     const cursor = collectionA.find({})
     counts[c] = 0
     for await(const doc of cursor) {
@@ -35,7 +35,7 @@ async function main() {
       if (!equal(doc, docB)) {
         counts[c] += 1;
         console.log('A', JSON.stringify(doc))
-        console.log('B', JSON.stringify(docH))
+        console.log('B', JSON.stringify(docB))
         console.log('-----')
       }
     }
@@ -43,7 +43,7 @@ async function main() {
   }
   console.log(counts)
   await clientA.close()
-  await clientH.close()
+  await clientB.close()
 }
 
 main().catch(console.error)
